@@ -1,69 +1,91 @@
-/* DHT Pro Shield - Simple
- *
- * Example testing sketch for various DHT humidity/temperature sensors
- * Written by ladyada, public domain
- *
- * Depends on Adafruit DHT Arduino library
- * https://github.com/adafruit/DHT-sensor-library
- */
+#include "./settings.h"
+#include <ESP8266WiFi.h>
+// #include <RestClient.h>
+// #include <string>
+#include <aREST.h>
+#include <DHT.h>
 
-#include "DHT.h"
 
-#define DHTPIN D5     // what pin we're connected to
+/* RestClient client = RestClient("172.23.218.116", 8000); */
 
-// Uncomment whatever type you're using!
-#define DHTTYPE DHT11   // DHT 11
-//#define DHTTYPE DHT22   // DHT 22  (AM2302)
-//#define DHTTYPE DHT21   // DHT 21 (AM2301)
-
-// Connect pin 1 (on the left) of the sensor to +5V
-// NOTE: If using a board with 3.3V logic like an Arduino Due connect pin 1
-// to 3.3V instead of 5V!
-// Connect pin 2 of the sensor to whatever your DHTPIN is
-// Connect pin 4 (on the right) of the sensor to GROUND
-// Connect a 10K resistor from pin 2 (data) to pin 1 (power) of the sensor
-
-// Initialize DHT sensor.
-// Note that older versions of this library took an optional third parameter to
-// tweak the timings for faster processors.  This parameter is no longer needed
-// as the current DHT reading algorithm adjusts itself to work on faster procs.
+// Sensor instance
 DHT dht(DHTPIN, DHTTYPE);
+
+// Datas for the API
+float temperature = 0;
+float humidity = 0;
+
+// Create aREST instance
+aREST rest = aREST();
+
+// Create an instance of the server
+#define LISTEN_PORT 80
+WiFiServer server(LISTEN_PORT);
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("DHTxx test!");
 
+  rest.variable("temperature", &temperature);
+  rest.variable("humidity", &humidity);
+
+  WiFi.begin(SSID, SSID_PASSWORD);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("WiFi connected");
+
+  Serial.println(WiFi.localIP());
+  server.begin();
   dht.begin();
 }
 
 void loop() {
-  // Wait a few seconds between measurements.
-  delay(2000);
+  /* String response = ""; */
+  /* client.setHeader("Content-type: application/json"); */
+  /* client.get("/", &response); */
+  /* Serial.println(response); */
 
+  // Handle REST calls
+  WiFiClient client = server.available();
+  if (!client) {
+    return;
+  }
+  while(!client.available()){
+    delay(1);
+  }
   // Reading temperature or humidity takes about 250 milliseconds!
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-  float h = dht.readHumidity();
+  humidity = dht.readHumidity();
   // Read temperature as Celsius (the default)
-  float t = dht.readTemperature();
-  // Read temperature as Fahrenheit (isFahrenheit = true)
-  // float f = dht.readTemperature(true);
+  temperature = dht.readTemperature();
 
   // Check if any reads failed and exit early (to try again).
-  if (isnan(h) || isnan(t)) {
+  if (isnan(humidity) || isnan(temperature)) {
     Serial.println("Failed to read from DHT sensor!");
     return;
   }
 
   // Compute heat index in Celsius (isFahreheit = false)
-  float hic = dht.computeHeatIndex(t, h, false);
+  float hic = dht.computeHeatIndex(temperature, humidity, false);
 
+  print_dht(&humidity, &temperature, &hic);
+
+  delay(500);
+
+  rest.handle(client);
+
+}
+
+void print_dht(float *h, float *t, float* hic) {
   Serial.print("Humidity: ");
-  Serial.print(h);
+  Serial.print(*h);
   Serial.print(" %\t");
   Serial.print("Temperature: ");
-  Serial.print(t);
+  Serial.print(*t);
   Serial.print(" *C ");
   Serial.print("Heat index: ");
-  Serial.print(hic);
+  Serial.print(*hic);
   Serial.print(" *C \n");
+  Serial.print("\n");
 }

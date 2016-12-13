@@ -11,6 +11,7 @@ Tested on a _WeMos D1_.
 * Adafruit DHT Unified
 * Adafruit Unified Sensor
 * DHT sensor library
+* aREST
 
 ## Build
 
