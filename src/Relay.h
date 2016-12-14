@@ -17,13 +17,14 @@
 
 class Relay {
     private:
-        uint8_t _state;
         uint8_t _pin;
 
     public:
-        Relay(uint8_t pin, uint8_t state=LOW);
+        int _state;
+
+        Relay(uint8_t pin, int state=LOW);
         void begin(void);
-        void set(uint8_t state);
+        void set(int state);
         void on(void);
         void off(void);
         void toggle(void);

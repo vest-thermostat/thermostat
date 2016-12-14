@@ -28,8 +28,12 @@ WiFiServer server(LISTEN_PORT);
 void setup() {
   Serial.begin(9600);
 
+  relay.begin();
+  dht.begin();
+
   rest.variable("temperature", &temperature);
   rest.variable("humidity", &humidity);
+  rest.variable("heating", &(relay._state));
   rest.set_name("VEST - Thermostat");
 
   WiFi.begin(SSID, SSID_PASSWORD);
@@ -37,12 +41,9 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
-  Serial.println("WiFi connected");
+  Serial.print("WiFi connected - "); Serial.println(WiFi.localIP());
 
-  Serial.println(WiFi.localIP());
-  relay.begin();
   server.begin();
-  dht.begin();
 }
 
 void loop() {

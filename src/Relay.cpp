@@ -1,6 +1,6 @@
 #include "./Relay.h"
 
-Relay::Relay(uint8_t pin, uint8_t state) {
+Relay::Relay(uint8_t pin, int state) {
     this->_pin = pin;
     this->_state = state;
 }
@@ -11,7 +11,7 @@ void Relay::begin(void) {
     DEBUG_PRINTLN("Initialisation of Relay done.")
 }
 
-void Relay::set(uint8_t state) {
+void Relay::set(int state) {
     this->_state = state;
     digitalWrite(this->_pin, this->_state);
 }
