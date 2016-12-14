@@ -30,6 +30,7 @@ void setup() {
 
   rest.variable("temperature", &temperature);
   rest.variable("humidity", &humidity);
+  rest.set_name("VEST - Thermostat");
 
   WiFi.begin(SSID, SSID_PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
