@@ -1,4 +1,5 @@
 #include "./settings.h"
+#include "./Relay.h"
 #include <ESP8266WiFi.h>
 // #include <RestClient.h>
 // #include <string>
@@ -18,6 +19,8 @@ float humidity = 0;
 // Create aREST instance
 aREST rest = aREST();
 
+Relay relay = Relay(D4);
+
 // Create an instance of the server
 #define LISTEN_PORT 80
 WiFiServer server(LISTEN_PORT);
@@ -36,6 +39,7 @@ void setup() {
   Serial.println("WiFi connected");
 
   Serial.println(WiFi.localIP());
+  relay.begin();
   server.begin();
   dht.begin();
 }
@@ -74,7 +78,6 @@ void loop() {
   delay(500);
 
   rest.handle(client);
-
 }
 
 void print_dht(float *h, float *t, float* hic) {
@@ -86,6 +89,6 @@ void print_dht(float *h, float *t, float* hic) {
   Serial.print(" *C ");
   Serial.print("Heat index: ");
   Serial.print(*hic);
-  Serial.print(" *C \n");
+  Serial.print(" *C");
   Serial.print("\n");
 }
