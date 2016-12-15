@@ -1,13 +1,13 @@
 #include "./settings.h"
 #include "./Relay.h"
 #include <ESP8266WiFi.h>
-// #include <RestClient.h>
-// #include <string>
+#include <RestClient.h>
+#include <string>
 #include <aREST.h>
 #include <DHT.h>
 
 
-/* RestClient client = RestClient("172.23.218.116", 8000); */
+RestClient client = RestClient("172.23.218.116", 8000);
 
 // Sensor instance
 DHT dht(DHTPIN, DHTTYPE);
@@ -47,10 +47,11 @@ void setup() {
 }
 
 void loop() {
-  /* String response = ""; */
-  /* client.setHeader("Content-type: application/json"); */
-  /* client.get("/", &response); */
-  /* Serial.println(response); */
+  String response = "";
+  client.setHeader("Content-type: application/json");
+  client.setHeader("Authorization: Token dffc67d2912b21607839301a3121adf1dc41a6ea");
+  client.post("/weather/own/", "{\"temperature\":\"32\", \"humidity\":\"29\", \"owner\":\"tperale\"}", &response);
+  Serial.println(response);
 
   // Handle REST calls
   WiFiClient client = server.available();
