@@ -1,20 +1,11 @@
-#include "./settings.h"
-#include "./Relay.h"
 #include <ESP8266WiFi.h>
-#include <RestClient.h>
 #include <string>
 #include <aREST.h>
-#include <DHT.h>
+#include "./settings.h"
+#include "./Relay.h"
+#include "./Monitoring.h"
 
-
-RestClient client = RestClient("172.23.218.116", 8000);
-
-// Sensor instance
-DHT dht(DHTPIN, DHTTYPE);
-
-// Datas for the API
-float temperature = 0;
-float humidity = 0;
+MonitoringDHT monitor(DHTPIN, DHTTYPE, "dffc67d2912b21607839301a3121adf1dc41a6ea", "192.168.0.208", 8000);
 
 // Create aREST instance
 aREST rest = aREST();
@@ -29,10 +20,9 @@ void setup() {
   Serial.begin(9600);
 
   relay.begin();
-  dht.begin();
 
-  rest.variable("temperature", &temperature);
-  rest.variable("humidity", &humidity);
+  /* rest.variable("temperature", &temperature); */
+  /* rest.variable("humidity", &humidity); */
   rest.variable("heating", &(relay._state));
   rest.set_name("VEST - Thermostat");
 
@@ -43,15 +33,15 @@ void setup() {
   }
   Serial.print("WiFi connected - "); Serial.println(WiFi.localIP());
 
+  monitor.begin();
+
   server.begin();
 }
 
 void loop() {
-  String response = "";
-  client.setHeader("Content-type: application/json");
-  client.setHeader("Authorization: Token dffc67d2912b21607839301a3121adf1dc41a6ea");
-  client.post("/weather/own/", "{\"temperature\":\"32\", \"humidity\":\"29\", \"owner\":\"tperale\"}", &response);
-  Serial.println(response);
+  monitor.do_the_thing();
+
+  delay(500);
 
   // Handle REST calls
   WiFiClient client = server.available();
@@ -61,37 +51,6 @@ void loop() {
   while(!client.available()){
     delay(1);
   }
-  // Reading temperature or humidity takes about 250 milliseconds!
-  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-  humidity = dht.readHumidity();
-  // Read temperature as Celsius (the default)
-  temperature = dht.readTemperature();
-
-  // Check if any reads failed and exit early (to try again).
-  if (isnan(humidity) || isnan(temperature)) {
-    Serial.println("Failed to read from DHT sensor!");
-    return;
-  }
-
-  // Compute heat index in Celsius (isFahreheit = false)
-  float hic = dht.computeHeatIndex(temperature, humidity, false);
-
-  print_dht(&humidity, &temperature, &hic);
-
-  delay(500);
 
   rest.handle(client);
-}
-
-void print_dht(float *h, float *t, float* hic) {
-  Serial.print("Humidity: ");
-  Serial.print(*h);
-  Serial.print(" %\t");
-  Serial.print("Temperature: ");
-  Serial.print(*t);
-  Serial.print(" *C ");
-  Serial.print("Heat index: ");
-  Serial.print(*hic);
-  Serial.print(" *C");
-  Serial.print("\n");
 }
