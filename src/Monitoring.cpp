@@ -32,9 +32,12 @@ void MonitoringDHT::send_datas() {
     char auth_token[64] = "Authorization: Token ";
     strcat(auth_token, this->_token);
     this->_client->setHeader(auth_token);
+    char temperature[6] = "";
+    dtostrf(this->_hic, 3, 3, temperature);
+    char humidity[8] = "";
+    dtostrf(this->_humidity, 3, 3, humidity);
     char datas[128] = "";
-    snprintf(datas, 128, "{\"temperature\":\"%d\", \"humidity\":\"%d\", \"owner\":\"tperale\"}", this->_temperature, this->_humidity);
-    Serial.println(datas);
+    snprintf(datas, 128, "{\"temperature\":\"%s\", \"humidity\":\"%s\", \"owner\":\"tperale\"}", temperature, humidity);
     this->_client->post("/weather/own/", datas, &response);
     Serial.println(response);
 }
