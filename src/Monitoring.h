@@ -8,20 +8,22 @@
 #endif
 
 #ifdef MONITORING_DEBUG
-  #define DEBUG_PRINT(...) { DEBUG_PRINTER.print(__VA_ARGS__); }
-  #define DEBUG_PRINTLN(...) { DEBUG_PRINTER.println(__VA_ARGS__); }
+  #define DEBUG_PRINT(...) { Serial.print(__VA_ARGS__); }
+  #define DEBUG_PRINTLN(...) { Serial.println(__VA_ARGS__); }
 #else
   #define DEBUG_PRINT(...) {}
   #define DEBUG_PRINTLN(...) {}
 #endif
 
-#include "DHT.h"
-#include "RestClient.h"
+#include <DHT.h>
+#include <RestClient.h>
+#include <Eventually.h>
 #include <string>
 #include <string.h>
 
 class MonitoringDHT {
     private:
+        EvtManager* _mgr;
         RestClient* _client;
         DHT* _dht;
         char* _token;
@@ -31,9 +33,9 @@ class MonitoringDHT {
         float _hic;
 
     public:
-        MonitoringDHT(uint8_t pin, uint8_t type, char* token, char* host, int port);
+        MonitoringDHT(EvtManager* mgr,  uint8_t pin, uint8_t type, char* token, char* host, int port);
         void begin(void);
         void send_datas(void);
-        void do_the_thing(void);
+        bool do_the_thing(EvtListener*, EvtContext*);
 };
 #endif
