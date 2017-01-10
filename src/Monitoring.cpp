@@ -15,25 +15,19 @@ static void print_dht(float h, float t, float hic) {
 
 
 MonitoringDHT::MonitoringDHT(
-      EvtManager* mgr,
+      unsigned long time,
       uint8_t pin,
       uint8_t type,
       char* token,
       char* host,
-      int port)
+      int port):
+    EvtTimeListener(time, true, nullptr)
 {
-    this->_mgr = mgr;
     this->_dht = new DHT(pin, type);
-    /* this->_client = new RestClient(host, port); */
+    this->_client = new RestClient(host, port);
     this->_token = token;
-}
 
-
-void MonitoringDHT::begin() {
     this->_dht->begin();
-    Serial.println("helllo");
-    this->_mgr->addListener(new EvtTimeListener(1000, true, (EvtAction) (&MonitoringDHT::do_the_thing)));
-    Serial.println("helllo");
 }
 
 
@@ -54,8 +48,7 @@ void MonitoringDHT::send_datas() {
 }
 
 
-bool MonitoringDHT::do_the_thing(EvtListener*, EvtContext*) {
-    Serial.println("helllo");
+bool MonitoringDHT::performTriggerAction(EvtContext*) {
     // Reading temperature or humidity takes about 250 milliseconds!
     // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
     this->_humidity = this->_dht->readHumidity();
@@ -73,7 +66,8 @@ bool MonitoringDHT::do_the_thing(EvtListener*, EvtContext*) {
 
     print_dht(this->_humidity, this->_temperature, this->_hic);
 
-    /* this->send_datas(); */
+    this->send_datas();
 
+    this->setupListener();
     return false;
 }

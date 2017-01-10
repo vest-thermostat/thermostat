@@ -21,9 +21,8 @@
 #include <string>
 #include <string.h>
 
-class MonitoringDHT {
+class MonitoringDHT: public EvtTimeListener {
     private:
-        EvtManager* _mgr;
         RestClient* _client;
         DHT* _dht;
         char* _token;
@@ -33,8 +32,15 @@ class MonitoringDHT {
         float _hic;
 
     public:
-        MonitoringDHT(EvtManager* mgr,  uint8_t pin, uint8_t type, char* token, char* host, int port);
-        void begin(void);
+        MonitoringDHT(
+          unsigned long time,
+          uint8_t pin,
+          uint8_t type,
+          char* token,
+          char* host,
+          int port
+        );
+        bool performTriggerAction(EvtContext*);
         void send_datas(void);
         bool do_the_thing(EvtListener*, EvtContext*);
 };
