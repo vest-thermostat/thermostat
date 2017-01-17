@@ -5,6 +5,7 @@
 #include <WiFiManager.h>
 
 #include "./settings.h"
+#include "./Authentication.h"
 #include "./Relay.h"
 #include "./Monitoring.h"
 
@@ -25,6 +26,8 @@ void setup() {
 
   WiFiManager wifiManager;
   wifiManager.autoConnect("VEST Thermostat");
+
+  String token = Authentication().waitForAuthentication();
 
   dht.begin();
 
