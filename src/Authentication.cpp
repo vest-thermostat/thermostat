@@ -38,5 +38,7 @@ String Authentication::waitForAuthentication(Auth_Callback verificationCallback,
         }
     }
 
+    Udp.stop();
+
     return String(incomingMessageBuffer);
 }
