@@ -1,33 +1,40 @@
 #include <ESP8266WiFi.h>
 #include <string>
-#include <Eventually.h>
+#include <Automaton.h>
+#include <Atm_esp8266.h>
+#include <WiFiManager.h>
 
 #include "./settings.h"
 #include "./Relay.h"
 #include "./Monitoring.h"
 
-EvtManager mgr;
-
-char* token = "dffc67d2912b21607839301a3121adf1dc41a6ea";
 char* host = "192.168.0.208";
 int port = 8000;
 
-Relay relay = Relay(D4);
+DHT dht = DHT(DHTPIN, DHTTYPE);
+
+/* Relay relay = Relay(D4); */
+
+Atm_timer timer;
 
 void setup() {
   Serial.begin(9600);
 
-  relay.begin();
+  /* relay.begin(); */
+  /* mgr.addListener(new MonitoringDHT(1000, DHTPIN, DHTTYPE, token, host, port)); */
 
-  WiFi.begin(SSID, SSID_PASSWORD);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.print("WiFi connected - "); Serial.println(WiFi.localIP());
+  WiFiManager wifiManager;
+  wifiManager.autoConnect("VEST Thermostat");
 
-  mgr.addListener(new MonitoringDHT(1000, DHTPIN, DHTTYPE, token, host, port));
+  dht.begin();
 
+  timer.begin(1000)
+    .repeat()
+    .onTimer([]( int idx, int v, int up ) {
+      Serial.print(dht.readHumidity());
+    }).start();
 }
 
-USE_EVENTUALLY_LOOP(mgr)
+void loop () {
+  automaton.run();
+}

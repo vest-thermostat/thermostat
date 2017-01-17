@@ -13,6 +13,7 @@ Tested on a _WeMos D1_.
 * DHT sensor library
 * Automaton
 * Automaton-Esp8266
+* WiFiManager
 
 ## Build
 
