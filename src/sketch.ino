@@ -4,38 +4,42 @@
 #include <Atm_esp8266.h>
 #include <WiFiManager.h>
 
-#include "./settings.h"
 #include "./Authentication.h"
 #include "./Relay.h"
-#include "./Monitoring.h"
+#include "./Atm_DHT.h"
+#include "./Client.h"
+
+#define DHTPIN D5
+#define DHTTYPE DHT11
 
 char* host = "192.168.0.208";
 int port = 8000;
 
-DHT dht = DHT(DHTPIN, DHTTYPE);
 
 /* Relay relay = Relay(D4); */
 
-Atm_timer timer;
+Atm_DHT dht;
 
 void setup() {
   Serial.begin(9600);
 
   /* relay.begin(); */
-  /* mgr.addListener(new MonitoringDHT(1000, DHTPIN, DHTTYPE, token, host, port)); */
 
   WiFiManager wifiManager;
   wifiManager.autoConnect("VEST Thermostat");
 
-  String token = Authentication().waitForAuthentication();
+  /* VestThermostatClient client = VestThermostatClient(host, port); */
 
-  dht.begin();
+  /* String token = Authentication().waitForAuthentication(); */
 
-  timer.begin(1000)
-    .repeat()
-    .onTimer([]( int idx, int v, int up ) {
-      Serial.print(dht.readHumidity());
-    }).start();
+  dht.begin(DHTPIN, DHTTYPE, 5000)
+    .onNewDatas([](SensorDatas d) {
+      Serial.print("Temperature: ");
+      Serial.print(d.temperature);
+      Serial.print("Humidity: ");
+      Serial.println(d.humidity);
+    })
+    .start();
 }
 
 void loop () {

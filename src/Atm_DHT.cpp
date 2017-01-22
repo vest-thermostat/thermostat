@@ -267,3 +267,9 @@ Atm_DHT& Atm_DHT::trace( Stream & stream ) {
     "DHT\0EVT_INCORRECT_DATAS\0EVT_CORRECT_DATAS\0EVT_TIMEOUT\0EVT_START\0ELSE\0IDLE\0WAITING\0FINISH\0NEW_DATAS" );
   return *this;
 }
+
+
+Atm_DHT& Atm_DHT::onNewDatas(DHTCallback callback) {
+  _callback = callback;
+  return *this;
+}
