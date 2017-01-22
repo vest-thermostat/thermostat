@@ -59,7 +59,7 @@ class Atm_DHT: public Machine {
 
     // DATA FROM THE SENSOR
     uint8_t _rawdata[5];
-    uint32_t _maxcycles;
+    uint32_t _maxcycles = microsecondsToClockCycles(1000);
     SensorDatas _datas;
 
     uint32_t expectPulse(bool);
