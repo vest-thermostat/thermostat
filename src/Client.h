@@ -1,18 +1,23 @@
 #ifndef VEST_CLIENT_H
 #define VEST_CLIENT_H
 
-#include <Atm_esp8266.h>
+#include <RestClient.h>
 #include <string>
-#include "Monitoring.h"
+#include "./Atm_DHT.h"
 
-/* @desc:
+/* @desc: Wrapper to communicate to the VEST Thermostat server API.
  */
-class VestThermostatClient: Atm_esp8266_httpc_simple {
+class VestThermostatClient {
     private:
+        String _header;
+        RestClient* client;
+
     public:
-        VestThermostatClient& begin( const char* host, int port = 80 );
-        String sendThermostatDatas (SensorDatas);
-        String setTemperature (float temperature);
+        VestThermostatClient() {};
+        VestThermostatClient& begin (const char* host, int port = 80);
+        VestThermostatClient& sendThermostatDatas (SensorDatas);
+        VestThermostatClient& setTemperature (float temperature);
+        bool addToken (String token);
 };
 
 #endif

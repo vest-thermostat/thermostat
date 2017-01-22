@@ -1,7 +1,5 @@
-#include <ESP8266WiFi.h>
 #include <string>
 #include <Automaton.h>
-#include <Atm_esp8266.h>
 #include <WiFiManager.h>
 
 #include "./Authentication.h"
@@ -12,13 +10,15 @@
 #define DHTPIN D5
 #define DHTTYPE DHT11
 
-char* host = "192.168.0.208";
-int port = 8000;
+const String host = "192.168.0.219";
+const int port = 8000;
 
+String token = "b54f5752ff9ae4a3d8af05fc1cbe6cb33390c65a";
 
 /* Relay relay = Relay(D4); */
 
 Atm_DHT dht;
+VestThermostatClient client;
 
 void setup() {
   Serial.begin(9600);
@@ -28,18 +28,16 @@ void setup() {
   WiFiManager wifiManager;
   wifiManager.autoConnect("VEST Thermostat");
 
-  /* VestThermostatClient client = VestThermostatClient(host, port); */
+  client.begin("192.168.0.219", 8000);
+  client.addToken(token);
 
   /* String token = Authentication().waitForAuthentication(); */
 
-  dht.begin(DHTPIN, DHTTYPE, 5000)
+  dht.begin(DHTPIN, DHTTYPE, 10000)
+    /* .trace(Serial) */
     .onNewDatas([](SensorDatas d) {
-      Serial.print("Temperature: ");
-      Serial.print(d.temperature);
-      Serial.print("Humidity: ");
-      Serial.println(d.humidity);
-    })
-    .start();
+      client.sendThermostatDatas(d);
+    }).start();
 }
 
 void loop () {
