@@ -1,6 +1,7 @@
 #include <string>
 #include <Automaton.h>
 #include <WiFiManager.h>
+#include <ArduinoJson.h>
 
 #include "./Authentication.h"
 #include "./Relay.h"
@@ -19,6 +20,7 @@ String token = "b54f5752ff9ae4a3d8af05fc1cbe6cb33390c65a";
 
 Atm_DHT dht;
 VestThermostatClient client;
+StaticJsonBuffer<200> jsonBuffer;
 
 void setup() {
   Serial.begin(9600);
@@ -28,12 +30,22 @@ void setup() {
   WiFiManager wifiManager;
   wifiManager.autoConnect("VEST Thermostat");
 
-  client.begin("192.168.0.219", 8000);
-  client.addToken(token);
+  client.begin("192.168.0.102", 8000)
+    .addToken(token)
+    .onResponse([](String response) {
+      JsonObject& r = jsonBuffer.parseObject(response);
+      double desired_tmp = r["current_temperature"];
+      double temperature = r["temperature"];
+      if (desired_tmp >= temperature) {
+        /* relay.trigger(ON); */
+      } else {
+        /* relay.trigger(OFF); */
+      }
+    }).start();
 
   /* String token = Authentication().waitForAuthentication(); */
 
-  dht.begin(DHTPIN, DHTTYPE, 10000)
+  dht.begin(DHTPIN, DHTTYPE, 2000)
     /* .trace(Serial) */
     .onNewDatas([](SensorDatas d) {
       client.sendThermostatDatas(d);
