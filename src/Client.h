@@ -32,6 +32,7 @@ class VestThermostatClient: public Machine {
         VestThermostatClient& setTemperature (float temperature);
         VestThermostatClient& addToken (String token);
         VestThermostatClient& onResponse(ClientCallback);
+        VestThermostatClient& trace( Stream & stream );
         VestThermostatClient& start();
 };
 

@@ -4,7 +4,7 @@ VestThermostatClient& VestThermostatClient::begin(const char* host, int port) {
   // clang-format off
   const static state_t state_table[] PROGMEM = {
     /*                          ON_ENTER  ON_LOOP  ON_EXIT    EVT_START EVT_NEW_REQUEST  EVT_RESPONSE   EVT_WAIT_REQUEST ELSE */
-    /*         IDLE */               -1,      -1,      -1, ENT_WAITING,             -1,           -1,                -1,  -1,
+    /*         IDLE */               -1,      -1,      -1,     WAITING,             -1,           -1,                -1,  -1,
     /*      WAITING */      ENT_WAITING,      -1,      -1,          -1,             -1, NEW_RESPONSE,                -1,  -1,
     /* NEW_RESPONSE */ ENT_NEW_RESPONSE,      -1,      -1,          -1,        WAITING,           -1,            WAITING, -1,
   };
@@ -64,8 +64,6 @@ VestThermostatClient& VestThermostatClient::sendThermostatDatas (SensorDatas dat
         FtoString(datas.humidity).c_str()
     );
 
-    Serial.println(query);
-
     String response;
 
     /* client->setHeader("Accept: application/json"); */
@@ -73,8 +71,9 @@ VestThermostatClient& VestThermostatClient::sendThermostatDatas (SensorDatas dat
     client->setContentType("application/json");
     client->post(route, query, &response);
 
+    Serial.println(response);
     _response = response;
-    trigger(EVT_NEW_REQUEST);
+    trigger(EVT_RESPONSE);
 
     return *this;
 }
@@ -100,6 +99,13 @@ VestThermostatClient& VestThermostatClient::addToken(String token) {
 
     _header = String("Authorization: Token ") + token;
     return *this;
+}
+
+VestThermostatClient& VestThermostatClient::trace( Stream & stream ) {
+  Machine::setTrace( &stream, atm_serial_debug::trace,
+    "CLIENT\0EVT_START\0EVT_NEW_REQUEST\0EVT_RESPONSE\0EVT_WAIT_REQUEST\0ELSE\0IDLE\0WAITING\0NEW_RESPONSE"
+  );
+  return *this;
 }
 
 VestThermostatClient& VestThermostatClient::start() {
