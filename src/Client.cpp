@@ -59,19 +59,18 @@ VestThermostatClient& VestThermostatClient::sendThermostatDatas (SensorDatas dat
     snprintf(
         query,
         64,
-        "{\"temperature\":\"%s\",\"humidity\":\"%s\",\"owner\":\"thomas\"}",
+        "{\"temperature\":\"%s\",\"humidity\":\"%s\"}",
         FtoString(datas.temperature).c_str(),
         FtoString(datas.humidity).c_str()
     );
 
-    String response;
+    String response = "";
 
     /* client->setHeader("Accept: application/json"); */
     client->setHeader(_header.c_str());
     client->setContentType("application/json");
     client->post(route, query, &response);
 
-    Serial.println(response);
     _response = response;
     trigger(EVT_RESPONSE);
 
