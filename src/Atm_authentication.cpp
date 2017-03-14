@@ -24,7 +24,9 @@ Atm_authentication& Atm_authentication::begin() {
   });
 
   _server.on("/setToken", HTTP_POST, [this] {
-    Serial.println(_server.arg("token"));
+    String token = _server.arg("token");
+    Serial.println(token);
+    this->token(token);
   });
 
   return *this;
@@ -53,8 +55,16 @@ int Atm_authentication::state( void ) {
   return Machine::state();
 }
 
-Atm_authentication& Atm_authentication::token() {
-  trigger( EVT_TOKEN );
+Atm_authentication& Atm_authentication::token(String token) {
+  if (_callback) {
+    _callback(token);
+  }
+  return *this;
+}
+
+Atm_authentication& Atm_authentication::onToken(Auth_Callback c) {
+  _callback = c;
+
   return *this;
 }
 

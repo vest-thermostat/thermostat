@@ -5,7 +5,7 @@
 #include <ESP8266WebServer.h>
 #include <Automaton.h>
 
-typedef bool (*Auth_Callback)(char token[]);
+typedef void (*Auth_Callback)(String token);
 
 class Atm_authentication: public Machine {
   public:
@@ -16,9 +16,11 @@ class Atm_authentication: public Machine {
     Atm_authentication& trace( Stream & stream );
     Atm_authentication& trigger( int event );
     int state( void );
-    Atm_authentication& token( void );
+    Atm_authentication& token(String);
+    Atm_authentication& onToken(Auth_Callback);
 
   private:
+    Auth_Callback _callback;
     ESP8266WebServer _server = ESP8266WebServer(80);
     enum {  }; // ACTIONS
     int event( int id );

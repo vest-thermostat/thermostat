@@ -31,7 +31,10 @@ void setup() {
   WiFiManager wifiManager;
   wifiManager.autoConnect("VEST Thermostat");
 
-  auth.begin();
+  auth.begin()
+    .onToken([](String token) {
+      client.addToken(token);
+    });
 
   client.begin("vest.tperale.be", 80)
   /* client.begin("192.168.0.219", 8000) */
