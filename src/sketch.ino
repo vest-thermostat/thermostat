@@ -3,7 +3,7 @@
 #include <WiFiManager.h>
 #include <ArduinoJson.h>
 
-#include "./Authentication.h"
+#include "./Atm_authentication.h"
 #include "./Relay.h"
 #include "./Atm_DHT.h"
 #include "./Client.h"
@@ -21,6 +21,7 @@ Atm_led relay;
 
 Atm_DHT dht;
 VestThermostatClient client;
+Atm_authentication auth;
 
 void setup() {
   Serial.begin(9600);
@@ -29,6 +30,8 @@ void setup() {
 
   WiFiManager wifiManager;
   wifiManager.autoConnect("VEST Thermostat");
+
+  auth.begin();
 
   client.begin("vest.tperale.be", 80)
   /* client.begin("192.168.0.219", 8000) */
