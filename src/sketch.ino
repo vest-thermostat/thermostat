@@ -26,7 +26,7 @@ Atm_authentication auth;
 void setup() {
   Serial.begin(9600);
 
-  relay.begin(D4);
+  relay.begin(D6);
 
   WiFiManager wifiManager;
   wifiManager.autoConnect("VEST Thermostat");
