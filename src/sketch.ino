@@ -67,7 +67,11 @@ void setup() {
       float a = r["humidity"];
       double desired_tmp = r["current_temperature"];
       double temperature = r["temperature"];
-      if (desired_tmp >= temperature) {
+      bool state = r["thermostat_state"];
+      if (state) {
+        Serial.print("STATE ON");
+        relay.trigger(relay.EVT_ON);
+      } else if (desired_tmp >= temperature) {
         Serial.print("ON: "); Serial.print(desired_tmp); Serial.print(" >= "); Serial.println(temperature);
         relay.trigger(relay.EVT_ON);
       } else {
