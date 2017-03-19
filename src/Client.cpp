@@ -60,7 +60,7 @@ VestThermostatClient& VestThermostatClient::sendThermostatDatas (SensorDatas dat
         query,
         64,
         "{\"temperature\":\"%s\",\"humidity\":\"%s\"}",
-        FtoString(datas.temperature).c_str(),
+        FtoString(datas.heat_index).c_str(),
         FtoString(datas.humidity).c_str()
     );
 

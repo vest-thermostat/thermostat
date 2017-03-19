@@ -28,6 +28,7 @@
 typedef struct {
   float temperature;
   float humidity;
+  float heat_index;
 } SensorDatas;
 
 typedef void (*DHTCallback)(SensorDatas);
@@ -66,6 +67,7 @@ class Atm_DHT: public Machine {
     bool _read ();
     float getTemperature();
     float getHumidity();
+    float getHeatIndex(float, float);
 
   public:
     enum { IDLE, WAITING, FINISH, NEW_DATAS }; // STATES
